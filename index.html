@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hall Pass Admin Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+    th { background-color: #f2f2f2; }
+    .over15 { background-color: #f8d7da; }
+    .safe { background-color: #d4edda; }
+  </style>
+</head>
+<body>
+  <h1>Live Hall Pass Admin Dashboard</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Student Email</th>
+        <th>Reason</th>
+        <th>Start Time</th>
+        <th>Minutes Out</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbx56otGS9Of4ZXopLP8_TcsKmc7PbCete3iO5cnhfu2iE54zGMMcuj06qkf2qN4hqXYfA/exec?page=getCurrentlyOut';
+
+
+    async function refreshData() {
+      try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        renderTable(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+
+    function renderTable(activePasses) {
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = "";
+
+      activePasses.forEach(row => {
+        const email = row.Email;
+        const reason = row.Reason;
+        const startTime = row.StartTime;
+        const durationMinutes = parseFloat(row.Duration);
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${email}</td>
+          <td>${reason}</td>
+          <td>${startTime}</td>
+          <td class="${durationMinutes > 15 ? 'over15' : 'safe'}">${durationMinutes}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    refreshData();
+    setInterval(refreshData, 60000);
+  </script>
+</body>
+</html>
